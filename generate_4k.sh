@@ -100,6 +100,15 @@ h265_two_pass_from_non_watermarked_yuv() {
 
 }
 
+h265_two_pass_from_input_video() {
+    # Pass 1 x265 
+    ffmpeg -y -i ${INPUT_VIDEO} -vf "scale=iw*sar:ih , pad=max(iw\,ih*(16/9)):ow/(16/9):(ow-iw)/2:(oh-ih)/2, scale=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}" -preset fast -x265-params level=5.1:bitrate=${BITRATE}:vbv-bufsize=${BUFFER_SIZE}:bframes=3:ref=4:keyint=48:min-keyint=24:scenecut=0:b-adapt=1:b-pyramid=0:tskip=1 -movflags +faststart -map_chapters -1 -f mp4 -vcodec libx265 -b:v ${BITRATE}k -minrate ${MIN_RATE}k -maxrate ${MAX_RATE}k -bufsize ${BUFFER_SIZE}k -s:v:0 ${OUTPUT_WIDTH}x${OUTPUT_HEIGHT} -coder 1 -an -pass 1 /dev/null
+
+    # Pass 2 (A) x265 + Audio
+    ffmpeg -y -i ${INPUT_VIDEO} -vf "scale=iw*sar:ih , pad=max(iw\,ih*(16/9)):ow/(16/9):(ow-iw)/2:(oh-ih)/2, scale=${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}" -preset fast -x265-params level=5.1:bitrate=${BITRATE}:vbv-bufsize=${BUFFER_SIZE}:bframes=3:ref=4:keyint=48:min-keyint=24:scenecut=0:b-adapt=1:b-pyramid=0:tskip=1 -movflags +faststart -map_chapters -1 -f mp4 -vcodec libx265 -b:v ${BITRATE}k -minrate ${MIN_RATE}k -maxrate ${MAX_RATE}k -bufsize ${BUFFER_SIZE}k -s:v:0 ${OUTPUT_WIDTH}x${OUTPUT_HEIGHT} -coder 1 -map 0:0 -map 0:1 -acodec libfaac -ac 2 -ab 128k -ar 44100 -pass 2 ${OUTPUT_VIDEO}
+
+}
+
 #### MAIN ####
 set -e
 
