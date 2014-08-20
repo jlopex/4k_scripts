@@ -25,10 +25,9 @@ usage() {
 }
 
 start_end_logo_frames() {
-
-    FRAMES=$(ffmpeg -i ${INPUT_VIDEO} -vcodec copy -f rawvideo -y /dev/null 2>&1 | tr ^M '\n' | awk '/^frame=/ {print $2}'| tail -n 1)
+    FRAMES=$(ffmpeg -i ${INPUT_VIDEO} -vcodec copy -f rawvideo -y /dev/null 2>&1 | tr ^M '\n' | sed -e 's/frame= /frame=/g' | sed -e 's/frame=/frame= /g' | awk '/^frame=/ {print $2}'| tail -n 1)
     START_LOGO_FRAME=${FADE_MARGIN}
-    END_LOGO_FRAME=$((${FRAMES}-${FADE_MARGIN}))
+    END_LOGO_FRAME=$[FRAMES-FADE_MARGIN]
 }
 
 yuv() {
